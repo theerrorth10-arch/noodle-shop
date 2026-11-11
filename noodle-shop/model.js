@@ -1,0 +1,24 @@
+// Original bob-haired schoolgirl geometry, reused from the existing character source.
+function path(c,points,fill,stroke='#202c40',w=5){c.beginPath();points(c);if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.strokeStyle=stroke;c.lineWidth=w;c.lineJoin='round';c.lineCap='round';c.stroke()}}
+function ellipse(c,x,y,rx,ry,fill,stroke=null){path(c,c=>c.ellipse(x,y,rx,ry,0,0,Math.PI*2),fill,stroke)}
+function line(c,x,y,X,Y,color,w=7){c.beginPath();c.moveTo(x,y);c.lineTo(X,Y);c.strokeStyle=color;c.lineWidth=w;c.lineCap='round';c.stroke()}
+function eye(c,x,y){ellipse(c,x,y,12,17,'#fff','#263346');ellipse(c,x+3,y+2,5,9,'#202d42')}
+function shoe(c,x,y,a){c.save();c.translate(x,y);c.rotate(a);path(c,c=>{c.moveTo(-25,-12);c.lineTo(17,-15);c.quadraticCurveTo(29,-12,38,8);c.lineTo(38,20);c.lineTo(-30,20);c.closePath()},'#4086f7');line(c,-26,14,34,14,'#fff',7);line(c,2,-6,15,-3,'#fff',3);c.restore()}
+
+function poly(c,pts,fill){path(c,c=>{c.moveTo(...pts[0]);pts.slice(1).forEach(p=>c.lineTo(...p));c.closePath()},fill,null)}
+function limb(c,pts,col,w){for(let i=1;i<pts.length;i++)line(c,...pts[i-1],...pts[i],col,w)}
+function faceTone(c,rx,ry){let g=c.createLinearGradient(-rx,-ry,rx,ry);g.addColorStop(0,'#f2d5ac');g.addColorStop(.55,'#dfbd92');g.addColorStop(1,'#bc9874');return g}
+function person(c,t,pose,kind){let girl=true,big=true,run=pose==='bounce',talk=pose==='wave';let cycle=t*(run?9:5),a=0,b=0,skin='#dfbd92',dark='#292b31';c.save();c.translate(270,342+Math.sin(t*2)*1.2);c.rotate(run?.1:0);
+if(girl){poly(c,[[-87,-177],[-99,-20],[-67,7],[77,7],[98,-29],[83,-178]],'#242124')}
+// Legs bend at the knees; the feet stay attached to the ankles.
+let hip=big?74:64,len=big?84:145,spread=talk?7:a*(run?62:34);for(let side of [-1,1]){let x=side*(big?19:14),swing=side*spread,kx=x+swing*.7,ky=hip+len*.52-Math.max(0,side*b)*(run?30:8),fx=x+swing,fy=hip+len-Math.max(0,side*b)*(run?36:10);limb(c,[[x,hip],[kx,ky],[fx,fy]],girl?skin:(side===-1?'#41424a':dark),big?22:15);poly(c,[[fx-13,fy-5],[fx+10,fy-5],[fx+25,fy+10],[fx-15,fy+10]],big?'#333d50':'#b6b1a0')}
+// Far arm, torso and near arm.
+let shoulder=big?-23:-58,arm=big?68:105;let handY=shoulder+arm,sw=talk?Math.sin(t*3)*15:a*(run?42:25);
+let shirt=big?'#f1f0e9':'#477a70';poly(c,[[-32,shoulder-12],[25,shoulder-12],[34,hip],[-29,hip]],shirt);poly(c,[[19,shoulder-9],[30,shoulder+1],[34,hip],[18,hip]],big?'#d4d8d5':'#345c56');poly(c,[[-32,shoulder-12],[-39,shoulder+18],[-18,shoulder+22],[-12,shoulder-8]],shirt);poly(c,[[16,shoulder-12],[39,shoulder+13],[21,shoulder+23],[7,shoulder-7]],shirt);
+if(girl){poly(c,[[-29,shoulder-9],[0,shoulder+16],[29,shoulder-9],[19,shoulder+29],[-19,shoulder+29]],'#283d5b');poly(c,[[-15,shoulder+16],[0,shoulder+22],[-15,shoulder+32]],'#407c90');poly(c,[[15,shoulder+16],[0,shoulder+22],[15,shoulder+32]],'#407c90');poly(c,[[-30,hip-17],[30,hip-17],[58,hip+34],[-57,hip+34]],'#2c3e5b');for(let v=-2;v<=2;v++)line(c,v*12,hip-12,v*21,hip+28,'#465a78',2)}else if(big){line(c,-18,shoulder+4,-18,hip-5,'#263d59',9);line(c,17,shoulder+4,17,hip-5,'#263d59',9);poly(c,[[-8,shoulder-10],[0,shoulder+6],[8,shoulder-10]],'#d1b794');line(c,7,27,24,27,'#84929d',2)}else{line(c,-17,shoulder+30,13,shoulder+30,'#dbd3b0',3)}
+line(c,0,shoulder-18,0,shoulder-1,skin,23);
+// Each head has separate ears, face, eyes, brows, mouth and hair.
+c.save();c.translate(0,big?-111:-118);let rx=big?91:39,ry=big?85:55;ellipse(c,-rx+1,10,big?14:9,big?23:13,skin);ellipse(c,rx-1,10,big?14:9,big?23:13,skin);poly(c,[[-rx,-ry*.45],[-rx*.76,-ry],[rx*.62,-ry],[rx,-ry*.4],[rx*.9,ry*.6],[rx*.45,ry],[-rx*.38,ry],[-rx*.88,ry*.52]],faceTone(c,rx,ry));poly(c,[[rx*.6,-ry*.7],[rx,-ry*.4],[rx*.9,ry*.6],[rx*.45,ry],[rx*.3,ry*.72]],'#cba880');
+for(let side of [-1,1]){let ex=side*rx*.39,ey=big?12:3;c.save();c.translate(0,ey);c.scale(1,Math.sin(t*1.9)>.994?.12:1);c.translate(0,-ey);if(big){ellipse(c,ex,ey,24,30,'#f6f5ee');ellipse(c,ex+2,ey+2,18,23,'#35251e');ellipse(c,ex+4,ey+3,10,15,'#110f10');ellipse(c,ex+10,ey-8,5,6,'#fff')}else{ellipse(c,ex,ey,10,14,'#fbf3db');ellipse(c,ex+2,ey+1,5,8,'#27291f')}c.restore();line(c,ex-rx*.13,ey-(big?34:21),ex+rx*.12,ey-(big?36:18),'#2a2522',big?7:4)}
+ellipse(c,1,big?35:21,big?6:4,big?7:5,'#d2ae83');let mouth=talk?4+Math.abs(Math.sin(t*10))*(big?12:7):big?3:5;ellipse(c,2,big?57:38,big?12:7,mouth,'#4b2924');
+if(girl){ellipse(c,-57,39,13,6,'#d99c8c');ellipse(c,57,39,13,6,'#d99c8c')}let hair='#17191c';poly(c,[[-rx-8,8],[-rx-12,-ry*.6],[-rx*.65,-ry-13],[-rx*.12,-ry-22],[rx*.5,-ry-15],[rx+13,-ry*.6],[rx+7,15],[rx*.65,-ry*.25],[rx*.43,-ry*.08],[rx*.25,-ry*.65],[0,-ry*.15],[-rx*.16,-ry*.67],[-rx*.5,-ry*.12],[-rx*.67,-ry*.45]],hair);if(!big){poly(c,[[-rx*.6,-ry],[ -rx*.9,-ry-31],[-rx*.1,-ry-12],[rx*.1,-ry-42],[rx*.45,-ry-8],[rx*.85,-ry-23],[rx,-ry*.6]],hair)}else poly(c,[[-rx*.75,-ry*.45],[-rx*.4,-ry*.85],[rx*.5,-ry*.8],[rx*.78,-ry*.48],[rx*.35,-ry*.62]],'#202224');c.restore();c.restore()}
